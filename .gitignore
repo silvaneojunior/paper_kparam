@@ -1,0 +1,8 @@
+
+/.old
+/.Rproj.user
+.Rhistory
+section 3-1 simulation/simul_data_multinomial.csv
+section 3-1 simulation/time_data_multinomial.csv
+section 3-2 volatility/stan_fit_ibm.bkp
+section 3-2 volatility/stan_fit_simul.bkp
