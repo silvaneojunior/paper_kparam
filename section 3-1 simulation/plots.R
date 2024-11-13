@@ -1,7 +1,7 @@
 ##############################################################################
 source('base.r')
 
-colors=c('Our proposal'='#aaaaaadd',
+colors=c('kDGLM'='#aaaaaadd',
          'STAN'='#000000dd'
 )
 
@@ -9,8 +9,8 @@ colors=c('Our proposal'='#aaaaaadd',
 time.data=read.csv('section 3-1 simulation/time_data_multinomial.csv') %>%
   group_by(model,n.obs,N) %>%
   summarize(time_spent=mean(time_spent)) %>%
-  mutate(model=ifelse(model=='kdglm','Our proposal','STAN') %>%
-           factor(levels=c('STAN','Our proposal')))
+  mutate(model=ifelse(model=='kdglm','kDGLM','STAN') %>%
+           factor(levels=c('STAN','kDGLM')))
 
 # Avarage time per sample unit
 time.data %>%
@@ -45,7 +45,7 @@ ggplot(plot.data %>% filter(scale=='Time~~to~~fit~~(log[10]~~seconds)'))+
 #####################################
 
 simul.data=read.csv('section 3-1 simulation/simul_data_multinomial.csv') %>%
-  mutate(model=ifelse(model=='kdglm','Our proposal','STAN'))
+  mutate(model=ifelse(model=='kdglm','kDGLM','STAN'))
 
 for(col in c('model','var')){
   simul.data[[col]]=as.factor(simul.data[[col]])
@@ -59,8 +59,8 @@ names(simul.data)
 
 
 #### Short versions ####
-width=2*base.size
-height=2*base.size
+width=base.size
+height=base.size
 
 ggplot(simul.data%>%
          arrange(desc(model))%>%
@@ -85,15 +85,17 @@ ggplot(simul.data%>%
   facet_wrap(~var,labeller = label_parsed)+
   theme_bw()+
   theme(text=element_text(size=font_size,family=family_font),
+        legend.text=element_text(size=font_size,family=family_font),
         legend.position = 'bottom',panel.grid=element_blank(),
         strip.text = element_text(size = 3*font_size/4, margin = margin()))
 
 ggsave(
-  'figures/fig_paper_alves1_short.pdf',
+  'section 3-1 simulation/fig_paper_alves1_short.pdf',
   device='pdf',
   units='px',
   width=width,
-  height=height
+  height=height,
+  dpi = dpi
 )
 
 ggplot(simul.data %>%
@@ -117,15 +119,17 @@ ggplot(simul.data %>%
              labeller = label_parsed,scales='free')+
   theme_bw()+
   theme(text=element_text(size=font_size,family=family_font),
+        legend.text=element_text(size=font_size,family=family_font),
         legend.position = 'bottom',panel.grid=element_blank(),
         strip.text = element_text(size = 3*font_size/4, margin = margin()))
 
 ggsave(
-  'figures/fig_paper_alves2_short.pdf',
+  'section 3-1 simulation/fig_paper_alves2_short.pdf',
   device='pdf',
   units='px',
   width=width,
-  height=height
+  height=height,
+  dpi = dpi
 )
 
 #### Long versions ####
@@ -154,11 +158,12 @@ ggplot(simul.data%>%
   facet_grid((paste0(n.obs,'~observations') %>% factor(.,levels=unique(.)))~var,labeller = label_parsed)+
   theme_bw()+
   theme(text=element_text(size=font_size,family=family_font),
+        legend.text=element_text(size=font_size,family=family_font),
         legend.position = 'bottom',panel.grid=element_blank(),
         strip.text = element_text(size = 3*font_size/4, margin = margin()))
 
 ggsave(
-  'figures/fig_paper_alves1.pdf',
+  'section 3-1 simulation/fig_paper_alves1.pdf',
   device='pdf',
   units='px',
   width=width,
@@ -184,12 +189,13 @@ ggplot(simul.data %>%
              labeller = label_parsed)+
   theme_bw()+
   theme(text=element_text(size=font_size,family=family_font),
+        legend.text=element_text(size=font_size,family=family_font),
         legend.position = 'bottom',panel.grid=element_blank(),
         strip.text = element_text(size = 3*font_size/4, margin = margin()))
 
 
 ggsave(
-  'figures/fig_paper_alves2.pdf',
+  'section 3-1 simulation/fig_paper_alves2.pdf',
   device='pdf',
   units='px',
   width=width,
@@ -218,11 +224,12 @@ ggplot(simul.data%>%
   facet_grid((paste0(n.obs,'~observations') %>% factor(.,levels=unique(.)))~var,labeller = label_parsed)+
   theme_bw()+
   theme(text=element_text(size=font_size,family=family_font),
+        legend.text=element_text(size=font_size,family=family_font),
         legend.position = 'bottom',panel.grid=element_blank(),
         strip.text = element_text(size = 3*font_size/4, margin = margin()))
 
 ggsave(
-  'figures/fig_paper_alves3.pdf',
+  'section 3-1 simulation/fig_paper_alves3.pdf',
   device='pdf',
   units='px',
   width=width,
@@ -248,12 +255,13 @@ ggplot(simul.data %>%
              labeller = label_parsed)+
   theme_bw()+
   theme(text=element_text(size=font_size,family=family_font),
+        legend.text=element_text(size=font_size,family=family_font),
         legend.position = 'bottom',panel.grid=element_blank(),
         strip.text = element_text(size = 3*font_size/4, margin = margin()))
 
 
 ggsave(
-  'figures/fig_paper_alves4.pdf',
+  'section 3-1 simulation/fig_paper_alves4.pdf',
   device='pdf',
   units='px',
   width=width,
@@ -261,3 +269,71 @@ ggsave(
 )
 
 ########################################################################################
+#### Short versions ####
+width=base.size
+height=base.size
+
+simul.data%>%
+  arrange(desc(model))%>%
+  filter(((var=='y.1' | var=='y.2') & time-n.obs==1) | ((var=='theta.1' | var=='theta.2') & time==n.obs), n.obs==10) %>%
+  mutate(index=str_split_i(var,'\\.',2),var=str_split_i(var,'\\.',1),range=icu-icl) %>% 
+  filter(sample==449,N==5,index==1,var=='theta')
+
+simul.data%>% 
+  filter(sample==449,N==5,var=='theta.1',time==10,n.obs==10)
+
+valid.index=which(table(simul.data$sample)==3136)
+
+ggplot(simul.data%>%
+         arrange(desc(model))%>%
+         filter(sample %in% valid.index,
+                ((var=='y.1' | var=='y.2') & time-n.obs==1) | ((var=='theta.1' | var=='theta.2') & time==n.obs), n.obs==10) %>%
+         mutate(mean=mean) %>% 
+         select(var,model,N,mean,n.obs,sample ) %>% 
+         pivot_wider(names_from = model,values_from = mean) %>% 
+         # mutate(mean=(mean-y)/y,icl=(icl-y)/y,icu=(icu-y)/y) %>%
+         mutate(error=ifelse(var %in% c('y.1','y.2'),(STAN-kDGLM)/N,STAN-kDGLM)) %>%
+         select(n.obs,var,N,error) %>%
+         group_by(n.obs,var,N) %>%
+         mutate(error=error,n.obs=as.factor(n.obs),N=as.factor(N)) %>%
+         summarize(mean=mean(error),icl=quantile(error,0.025),icu=quantile(error,0.975)))+
+  geom_hline(yintercept = 0,linetype='dashed')+
+  geom_point(aes(x=N,y=mean))+
+  geom_errorbar(aes(x=N,ymin=icl,ymax=icu))+
+  scale_x_discrete('N')+
+  # scale_y_continuous('Prediction error',limits=c(-0.75,0.75),labels=~paste0(100*.,'%'))+
+  scale_y_continuous('Bias')+
+  # guides(shape='none')+
+  facet_wrap(~var,labeller = label_parsed)+
+  theme_bw()+
+  theme(text=element_text(size=font_size,family=family_font),
+        legend.text=element_text(size=font_size,family=family_font),
+        legend.position = 'bottom',panel.grid=element_blank(),
+        strip.text = element_text(size = 3*font_size/4, margin = margin()))
+
+ggplot(simul.data%>%
+         arrange(desc(model))%>%
+         filter(sample %in% valid.index,
+                ((var=='y.1' | var=='y.2') & time-n.obs==1) | ((var=='theta.1' | var=='theta.2') & time==n.obs), n.obs==10) %>%
+         mutate(range=icu-icl) %>% 
+         select(var,model,N,range,n.obs,sample ) %>% 
+         pivot_wider(names_from = model,values_from = range) %>% 
+         # mutate(mean=(mean-y)/y,icl=(icl-y)/y,icu=(icu-y)/y) %>%
+         mutate(error=ifelse(var %in% c('y.1','y.2'),(STAN/kDGLM),STAN/kDGLM)) %>%
+         select(n.obs,var,N,error) %>%
+         group_by(n.obs,var,N) %>%
+         mutate(error=error,n.obs=as.factor(n.obs),N=as.factor(N)) %>%
+         summarize(mean=mean(error),icl=quantile(error,0.025),icu=quantile(error,0.975)))+
+  geom_hline(yintercept = 1,linetype='dashed')+
+  geom_point(aes(x=N,y=mean))+
+  geom_errorbar(aes(x=N,ymin=icl,ymax=icu))+
+  scale_x_discrete('N')+
+  # scale_y_continuous('Prediction error',limits=c(-0.75,0.75),labels=~paste0(100*.,'%'))+
+  scale_y_continuous('Bias')+
+  # guides(shape='none')+
+  facet_wrap(~var,labeller = label_parsed)+
+  theme_bw()+
+  theme(text=element_text(size=font_size,family=family_font),
+        legend.text=element_text(size=font_size,family=family_font),
+        legend.position = 'bottom',panel.grid=element_blank(),
+        strip.text = element_text(size = 3*font_size/4, margin = margin()))

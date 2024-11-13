@@ -69,17 +69,18 @@ ggplot(plot.data %>% filter(format(Time,format='%Y')>1960))+
   scale_x_date('Year',expand=c(0,0))+
   theme_bw()+
   theme(text=element_text(size=font_size,family=family_font),
+        legend.text=element_text(size=font_size,family=family_font),
         legend.position = 'bottom',panel.grid=element_blank(),
         strip.background = element_blank(),
         strip.clip = 'off',
-        strip.text = element_text(hjust = -0.2,vjust=0.75))
+        strip.text = element_text(hjust = -0.15,vjust=0.75))
 
 ggsave(
-  'figures/ibm-pred.pdf',
+  'section 3-2 volatility/ibm-pred.pdf',
   device='pdf',
   units='px',
-  width=base.size*2,
-  height=base.size
+  width=base.size,
+  height=base.size/2.5
 )
 
 ###########################################################
@@ -157,12 +158,12 @@ sum(log.like.gamma)
 ###########################################################
 
 
-pdf(file = 'figures/volat-ibm-AR-ht.pdf',
-    width = base.size*2/dpi, height = base.size/dpi,
+pdf(file = 'section 3-2 volatility/volat-ibm-AR-ht.pdf',
+    width = base.size/dpi, height = base.size/(dpi*2.5),
     family=family_font)
 
-m <- matrix(c(1,2,3,4),nrow = 2,ncol = 2,byrow = TRUE)
-layout(mat = m,heights = c(0.9,0.1))
+m <- matrix(c(1,2),nrow = 1,ncol = 2,byrow = TRUE)
+layout(mat = m)
 
 
 par(mgp=c(1.5,0.5,0),mar = c(3, 2.5, 1, 2.5))
@@ -174,7 +175,7 @@ plot(date_label[ref.data.prop2$Time] %>% as.Date,rep(0,T-cutoff),type='p',pch=16
      # main='Volatility',
      xaxt='n',
      family=family_font,xaxs='i',yaxs='i')
-mtext('(A)',side=3,adj=3,at=-2)
+mtext('(A)',side=3,at=as.Date('1960-01-01'))
 axis(1,
      at=seq(as.Date('1965-01-01'),as.Date('1995-01-01'),'10 years'),
      labels=format(seq(as.Date('1965-01-01'),as.Date('1995-01-01'),'10 years'),'%Y'))
@@ -203,7 +204,7 @@ plot(date_label[ref.data.prop2$Time] %>% as.Date,rep(0,T-cutoff),type='n',pch=16
      # main='Volatility',
      xaxt='n',
      family=family_font,xaxs='i',yaxs='i')
-mtext('(B)',side=3,adj=3,at=-2)
+mtext('(B)',side=3,at=as.Date('1960-01-01'))
 axis(1,
      at=seq(as.Date('1965-01-01'),as.Date('1995-01-01'),'10 years'),
      labels=format(seq(as.Date('1965-01-01'),as.Date('1995-01-01'),'10 years'),'%Y'))
@@ -222,17 +223,6 @@ base_ribbon2(
   col='#aaaaaa'
 )
 lines(date_label[ref.data.prop2$Time] %>% as.Date,ref.data.prop2$y+log(desv.pad),col='#aaaaaa')
-
-par(mar = c(0, 0, 0, 0))
-plot(1, type = "n", axes=FALSE, xlab="", ylab="",xlim=c(0,1e-10),ylim=c(0,1e-10),family=family_font)
-legend(legend=c('Gamma','Normal'),col=c('#222222','#aaaaaa'),
-       lty=c(2,1),pch=c(22,22),pt.cex=c(3.5,3.5),
-       x='top',inset=0, horiz = TRUE,cex=0.75,bty = "n")
-par(mar = c(0, 0, 0, 0))
-plot(1, type = "n", axes=FALSE, xlab="", ylab="",xlim=c(0,1e-10),ylim=c(0,1e-10),family=family_font)
-legend(legend=c('HMC','Our method'),col=c('#222222','#aaaaaa'),
-       lty=c(2,1),pch=c(22,22),pt.cex=c(3.5,3.5),
-       x='top',inset=0, horiz = TRUE,cex=0.75,bty = "n")
 
 
 dev.off()

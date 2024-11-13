@@ -36,5 +36,5 @@ base_ribbon2 <- function(x,ymin,ymax,...){
 
 # Visual options
 prop.title=0.15
-base.size=800
+base.size=1950
 dpi=300

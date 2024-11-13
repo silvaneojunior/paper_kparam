@@ -100,20 +100,20 @@ smooth_ci_upper_lb=pred_vals_lb$C.I.upper
     geom_point(aes(x=date.x,y=data,color='Obs.',fill='Obs.',shape='Obs.'))+
     geom_line(aes(x=date.x,y=rowMeans(smoothpar[[2]]),
                   color='Gamerman et al. (2013)',fill='Gamerman et al. (2013)',shape='Gamerman et al. (2013)'))+
-    geom_line(aes(x=date.x,y=apply(smoothpar[[2]],1,function(x){quantile(x,0.025)}),
-                  color='Gamerman et al. (2013)',fill='Gamerman et al. (2013)',shape='Gamerman et al. (2013)'),
-              linetype='dashed')+
-    geom_line(aes(x=date.x,y=apply(smoothpar[[2]],1,function(x){quantile(x,0.975)}),
-                  color='Gamerman et al. (2013)',fill='Gamerman et al. (2013)',shape='Gamerman et al. (2013)'),
-              linetype='dashed')+
+    # geom_line(aes(x=date.x,y=apply(smoothpar[[2]],1,function(x){quantile(x,0.025)}),
+    #               color='Gamerman et al. (2013)',fill='Gamerman et al. (2013)',shape='Gamerman et al. (2013)'),
+    #           linetype='dashed')+
+    # geom_line(aes(x=date.x,y=apply(smoothpar[[2]],1,function(x){quantile(x,0.975)}),
+    #               color='Gamerman et al. (2013)',fill='Gamerman et al. (2013)',shape='Gamerman et al. (2013)'),
+    #           linetype='dashed')+
     geom_line(aes(x=date.x,y=smooth_pred,
                   color='Our approach',fill='Our approach',shape='Our approach'))+
-    geom_line(aes(x=date.x,y=smooth_ci_lower,
-                  color='Our approach',fill='Our approach',shape='Our approach'),
-              linetype='dashed')+
-    geom_line(aes(x=date.x,y=smooth_ci_upper,
-                  color='Our approach',fill='Our approach',shape='Our approach'),
-              linetype='dashed')+
+    # geom_line(aes(x=date.x,y=smooth_ci_lower,
+    #               color='Our approach',fill='Our approach',shape='Our approach'),
+    #           linetype='dashed')+
+    # geom_line(aes(x=date.x,y=smooth_ci_upper,
+    #               color='Our approach',fill='Our approach',shape='Our approach'),
+    #           linetype='dashed')+
     scale_shape_manual('',values=c('Gamerman et al. (2013)'=NULL,
                                       'Our approach'=NULL,
                                       'Obs.'=16,
@@ -131,17 +131,18 @@ smooth_ci_upper_lb=pred_vals_lb$C.I.upper
     scale_y_continuous('Sales',expand=c(0,0),breaks=seq(0,1000,250),labels=function(x){formatC(x,big.mark='.')})+
     theme_bw()+
     theme(text=element_text(size=font_size,family=family_font),
-          legend.position = "bottom",panel.grid=element_blank(),
-          aspect.ratio = 0.75)+
-    guides(color = guide_legend(override.aes = list(shape = NA)))
+          legend.text=element_text(size=font_size,family=family_font),
+          legend.position = "bottom",panel.grid=element_blank())+
+    # guides(color = guide_legend(override.aes = list(shape = NA)))+
+    guides(color = 'none',shape='none',fill='none')
 ))
 
 ggsave(
-  'figures/Gammer_pred.pdf',
+  'section 3-3 turkey/Gamer_pred.pdf',
   device = 'pdf',
   units='px',
-  width=base.size*2,
-  height=base.size
+  width=base.size,
+  height=base.size/2
 )
 
 plot.data=data.frame(date.x=date.x,
@@ -179,8 +180,8 @@ plot.data=rbind(plot.data,
 
 ((ggplot(plot.data,aes(x=date.x,color=Model,fill=Model))+
     geom_line(aes(y=y))+
-    geom_line(aes(y=ymin),linetype='dashed')+
-    geom_line(aes(y=ymax),linetype='dashed')+
+    # geom_line(aes(y=ymin),linetype='dashed')+
+    # geom_line(aes(y=ymax),linetype='dashed')+
     scale_shape_manual('',values=c('Gamerman et al. (2013)'=NULL,
                                    'Our approach'=NULL,
                                    'Obs.'=16,
@@ -198,17 +199,20 @@ plot.data=rbind(plot.data,
     scale_y_continuous('Estimated value',expand=c(0.2,0.2))+
     facet_wrap(.~plot,scales='free')+
     theme_bw()+
-    theme(text=element_text(size=font_size,family=family_font),legend.position = 'bottom',panel.grid=element_blank(),
+    theme(text=element_text(size=font_size,family=family_font),
+          legend.position = 'bottom',panel.grid=element_blank(),
+          legend.text=element_text(size=font_size,family=family_font),
           strip.background = element_blank(),
           strip.clip = 'off',
-          strip.text = element_text(hjust = -0.15,vjust=-0.5))))
+          strip.text = element_text(hjust = -0.15,vjust=-0.5))))+
+  guides(color='none')
 
 ggsave(
-  'figures/Gammer_variables.pdf',
+  'section 3-3 turkey/Gamer_variables.pdf',
   device='pdf',
   units='px',
-  width=base.size*2,
-  height=base.size
+  width=base.size,
+  height=base.size/2.5
 )
 
 q_sup=rep(NA,T)

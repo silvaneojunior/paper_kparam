@@ -126,12 +126,12 @@ sum(log.like.gamma)
 
 ###########################################################
 
-pdf(file = 'figures/volat-simul-AR-ht.pdf',
-    width = base.size*2/dpi, height = base.size/dpi,
+pdf(file = 'section 3-2 volatility/volat-simul-AR-ht.pdf',
+    width = base.size/dpi, height = base.size/(dpi*2.5),
     family=family_font)
 
-m <- matrix(c(1,2,3,4),nrow = 2,ncol = 2,byrow = TRUE)
-layout(mat = m,heights = c(0.9,0.1))
+m <- matrix(c(1,2),nrow = 1,ncol = 2,byrow = TRUE)
+layout(mat = m)
 
 
 par(mgp=c(1.5,0.5,0),mar = c(3, 2.5, 1, 2.5))
@@ -142,7 +142,7 @@ plot(-ht,type='p',pch=16,cex=0.5,xlim=c(time.cutoff,T),
      ylim=c(-2.5,2.5),
      # main='Volatility',
      family=family_font)
-mtext('(A)',side=3,at=-1)
+mtext('(A)',side=3,at=-15)
 base_ribbon2(
   x=ref.data.prop2$Time,
   ymin=ref.data.prop2$ymin,
@@ -167,7 +167,7 @@ plot(-ht,type='p',pch=16,cex=0.5,xlim=c(time.cutoff,T),
      ylim=c(-2.5,2.5),
      # main='Volatility',
      family=family_font)
-mtext('(B)',side=3,at=-1)
+mtext('(B)',side=3,at=-15)
 base_ribbon2(
   x=ref.data.prop2$Time,
   ymin=ref.data.prop2$ymin,
@@ -183,18 +183,6 @@ base_ribbon2(
   col='#222222'
 )
 lines((time.cutoff+1):T,colMeans(-stan_smp$theta,0.025)[(time.cutoff+1):T],col='#222222')
-
-par(mar = c(0, 0, 0, 0))
-plot(1, type = "n", axes=FALSE, xlab="", ylab="",xlim=c(0,1e-10),ylim=c(0,1e-10),family=family_font)
-legend(legend=c('True value','Gamma','Normal'),col=c('black','#222222','#aaaaaa'),
-       lty=c(0,2,1),pch=c(16,22,22),pt.cex=c(0.5,3.5,3.5),
-       x='top',inset=0, horiz = TRUE,cex=0.75,bty = "n")
-par(mar = c(0, 0, 0, 0))
-plot(1, type = "n", axes=FALSE, xlab="", ylab="",xlim=c(0,1e-10),ylim=c(0,1e-10),family=family_font)
-legend(legend=c('True value','HMC','Our method'),col=c('black','#222222','#aaaaaa'),
-       lty=c(0,2,1),pch=c(16,22,22),pt.cex=c(0.5,3.5,3.5),
-       x='top',inset=0, horiz = TRUE,cex=0.75,bty = "n")
-
 
 dev.off()
 par(mfrow=c(1,1))

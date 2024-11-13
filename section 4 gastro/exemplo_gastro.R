@@ -104,11 +104,11 @@ clusters=(y/exp)%>%  as.matrix %>% log  %>% diff(lag=12) %>% {1-cor(.)} %>% as.d
 # From the dendogram we notice 4 major age groups: less than 4 years old, 5 to 9 years old, 15 to 49 years old and 50 years or older.
 # We chose to keep the age group of Less than 1 year separate from the age group of 1 to 4 years old, because of the introduction of the vaccine (see the paper).
 
-clusters[1]='Infants\n(<1 year)'
-clusters[2]='Early childhood\n(1 to 4 years)'
-clusters[clusters==2]='Childhood\n(5 to 14 years)'
+clusters[1]='Infants (<1 year)'
+clusters[2]='Early childhood (1 to 4 years)'
+clusters[clusters==2]='Childhood (5 to 14 years)'
 clusters[clusters==3]='Reference group'
-clusters[clusters==4]='Senior group\n(60+ years)'
+clusters[clusters==4]='Senior group (60+ years)'
 
 convert.age=function(x){
   clusters[[x]]
@@ -140,7 +140,7 @@ ggplot(data,aes(x=Date,y=Hosp.admt/Exp,color=Age.group))+
   theme_bw()
 
 
-level=polynomial_block(p=1,order=2,D=0.95,name='Level') %>% 
+level=(polynomial_block(p=1,order=2,D=0.95,name='Level')+noise_block(p=1,H=0.01,name='Noise')) %>% 
   block_mult(k-1) %>% 
   block_rename(unique(data$Age.group) %>% {.[.!='Reference group']} %>% as.character)
 season=harmonic_block(p=1,period=12,D=0.975,name='Season') %>% 
@@ -151,11 +151,11 @@ outcome=Multinom(p=level$pred.names,data = y,offset=exp,base.class='Reference gr
 start=Sys.time()
 fitted_data=fit_model(level,season,outcome)
 difftime(Sys.time(),start)
-
+# fitted_data
 # microbenchmark::microbenchmark(fit_model(level,season,outcome))
 
-plot(fitted_data)
-plot(fitted_data,latent.states = '.Level')
+# plot(fitted_data)
+# plot(fitted_data,latent.states = '.Level')
 
 predictions=coef(fitted_data,lag=1,eval.pred = TRUE)
 
@@ -186,30 +186,35 @@ tx.pred=obs.pred %>%
          Observation =Observation /Exp) %>% 
   select(-Exp)
 
-plot.data=rbind(cbind(obs.pred,plot='(C)'), #Total Number
+plot.data=rbind(cbind(obs.pred,plot='(A)'), #Total Number
                 cbind(prorp.pred,plot='(B)'),# P(Age group | Admission)
-                cbind(tx.pred,plot='(A)')) %>%  # P(Admission | Age group)
+                cbind(tx.pred,plot='(C)')) %>%  # P(Admission | Age group)
   mutate(plot=plot %>% factor(.)) %>% 
   filter(Age.group!='Reference group')
 
-colors=c('Infants\n(<1 year)'='#5555aa',
-         'Early childhood\n(1 to 4 years)'='black',
-         'Childhood\n(5 to 14 years)'='#555555',
-         'Senior group\n(60+ years)'='#aaaaaa')
+colors=c('Infants (<1 year)'='#555555',
+         'Early childhood (1 to 4 years)'='black',
+         'Childhood (5 to 14 years)'='#555555',
+         'Senior group (60+ years)'='#aaaaaa')
+shape=c('Infants (<1 year)'='dashed',
+         'Early childhood (1 to 4 years)'='solid',
+         'Childhood (5 to 14 years)'='solid',
+         'Senior group (60+ years)'='solid')
 
-ggplot(plot.data %>% filter(format(Date,'%Y')>2000),aes(x=Date,color=Age.group,fill=Age.group,))+
+ggplot(plot.data %>% filter(format(Date,'%Y')>2002,plot!='(C)',Age.group%in% c('Infants (<1 year)','Early childhood (1 to 4 years)')),aes(x=Date,color=Age.group,fill=Age.group,linetype=Age.group))+
     geom_line(aes(y=Prediction))+
-    geom_point(aes(y=Observation),alpha=0.5,size=0.25)+
+    geom_point(aes(y=Observation),alpha=0.5,size=0.5)+
     geom_ribbon(aes(ymin=C.I.lower,
                     ymax=ifelse(C.I.upper>10000,10000,C.I.upper)),alpha=0.25,color=NA)+
     geom_vline(xintercept=75,linetype='dashed')+
-    scale_color_manual('Prediction',values=colors)+
-    scale_fill_manual('Prediction',values=colors)+
+  scale_color_manual('',values=colors)+
+  scale_linetype_manual('',values=shape)+
+    scale_fill_manual('',values=colors)+
     scale_shape('Observation')+
-    scale_y_continuous('',expand=c(0,0,0,0),n.breaks=7,labels=function(x){
-      ifelse(x<=0.05,
+    scale_y_continuous('',n.breaks=7,labels=function(x){
+      ifelse(x<=0.05 & x!=0,
              round(100*x,2)%>%paste0('%'),
-             ifelse(x<=1,
+             ifelse(x<=1 & x!=0,
                     round(100*x)%>%paste0('%'),
                     formatC(x,big.mark=',',format='d')
                     )
@@ -218,15 +223,93 @@ ggplot(plot.data %>% filter(format(Date,'%Y')>2000),aes(x=Date,color=Age.group,f
     scale_x_date('Year',expand=c(0,0))+
     facet_wrap(.~plot,scales='free')+
     theme_bw()+
-    theme(text=element_text(size=font_size,family=family_font),legend.position = 'bottom',panel.grid=element_blank(),
+    theme(text=element_text(size=font_size,family=family_font),
+          legend.position = 'bottom',panel.grid=element_blank(),
+          legend.text=element_text(size=font_size,family=family_font),
           strip.background = element_blank(),
           strip.clip = 'off',
-          strip.text = element_text(hjust = -0.25,vjust=-0.5))
+          strip.text = element_text(hjust = -0.15,vjust=-0.5))
   
 ggsave(
-  'figures/gastro-pred.pdf',
+  'section 4 gastro/gastro-pred.pdf',
   device='pdf',
   units='px',
-  width=base.size*2.5,
-  height=base.size
+  width=base.size,
+  height=base.size/2
 )
+p=plotly::ggplotly(ggplot(plot.data %>% filter(format(Date,'%Y')>2002,plot=='(A)'),aes(x=Date,color=Age.group,fill=Age.group))+
+  geom_line(aes(y=Prediction))+
+  geom_point(aes(y=Observation),alpha=0.5,size=0.5)+
+  geom_ribbon(aes(ymin=C.I.lower,
+                  ymax=ifelse(C.I.upper>10000,10000,C.I.upper)),alpha=0.25,linetype=0)+
+  geom_vline(xintercept=75,linetype='dashed')+
+  scale_color_hue('Prediction')+
+  scale_fill_hue('Prediction')+
+  scale_y_continuous('',expand=c(0,0,0,0),n.breaks=7,labels=function(x){
+    ifelse(x<=0.05,
+           round(100*x,2)%>%paste0('%'),
+           ifelse(x<=1,
+                  round(100*x)%>%paste0('%'),
+                  formatC(x,big.mark=',',format='d')
+           )
+    )
+  })+
+  scale_x_date('Year',expand=c(0,0))+
+  theme_bw()+
+  theme(text=element_text(size=font_size,family=family_font),legend.position = 'bottom',panel.grid=element_blank(),
+        strip.background = element_blank(),
+        strip.clip = 'off',
+        strip.text = element_text(hjust = -0.25,vjust=-0.5)))
+
+htmlwidgets::saveWidget(plotly::as_widget(p), "section 4 gastro/total.html")
+p=plotly::ggplotly(ggplot(plot.data %>% filter(format(Date,'%Y')>2002,plot=='(B)'),aes(x=Date,color=Age.group,fill=Age.group))+
+                     geom_line(aes(y=Prediction))+
+                     geom_point(aes(y=Observation),alpha=0.5,size=0.5)+
+                     geom_ribbon(aes(ymin=C.I.lower,
+                                     ymax=ifelse(C.I.upper>10000,10000,C.I.upper)),alpha=0.25,linetype=0)+
+                     geom_vline(xintercept=75,linetype='dashed')+
+                     scale_color_hue('Prediction')+
+                     scale_fill_hue('Prediction')+
+                     scale_y_continuous('',expand=c(0,0,0,0),n.breaks=7,labels=function(x){
+                       ifelse(x<=0.05,
+                              round(100*x,2)%>%paste0('%'),
+                              ifelse(x<=1,
+                                     round(100*x)%>%paste0('%'),
+                                     formatC(x,big.mark=',',format='d')
+                              )
+                       )
+                     })+
+                     scale_x_date('Year',expand=c(0,0))+
+                     theme_bw()+
+                     theme(text=element_text(size=font_size,family=family_font),legend.position = 'bottom',panel.grid=element_blank(),
+                           strip.background = element_blank(),
+                           strip.clip = 'off',
+                           strip.text = element_text(hjust = -0.25,vjust=-0.5)))
+
+htmlwidgets::saveWidget(plotly::as_widget(p), "section 4 gastro/composition.html")
+
+p=plotly::ggplotly(ggplot(plot.data %>% filter(format(Date,'%Y')>2002,plot=='(C)'),aes(x=Date,color=Age.group,fill=Age.group))+
+                     geom_line(aes(y=Prediction))+
+                     geom_point(aes(y=Observation),alpha=0.5,size=0.5)+
+                     geom_ribbon(aes(ymin=C.I.lower,
+                                     ymax=ifelse(C.I.upper>10000,10000,C.I.upper)),alpha=0.25,linetype=0)+
+                     geom_vline(xintercept=75,linetype='dashed')+
+                     scale_color_hue('Prediction')+
+                     scale_fill_hue('Prediction')+
+                     scale_y_continuous('',expand=c(0,0,0,0),n.breaks=7,labels=function(x){
+                       ifelse(x<=0.05,
+                              round(100*x,2)%>%paste0('%'),
+                              ifelse(x<=1,
+                                     round(100*x)%>%paste0('%'),
+                                     formatC(x,big.mark=',',format='d')
+                              )
+                       )
+                     })+
+                     scale_x_date('Year',expand=c(0,0))+
+                     theme_bw()+
+                     theme(text=element_text(size=font_size,family=family_font),legend.position = 'bottom',panel.grid=element_blank(),
+                           strip.background = element_blank(),
+                           strip.clip = 'off',
+                           strip.text = element_text(hjust = -0.25,vjust=-0.5)))
+
+htmlwidgets::saveWidget(plotly::as_widget(p), "section 4 gastro/probability.html")
