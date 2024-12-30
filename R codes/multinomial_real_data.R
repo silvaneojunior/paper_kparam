@@ -261,7 +261,7 @@ p=plotly::ggplotly(ggplot(plot.data %>% filter(format(Date,'%Y')>2002,plot=='(A)
         strip.text = element_text(hjust = -0.25,vjust=-0.5)))
 
 path=getwd()
-setwd('Figures/')
+setwd('Multinomial_ Interative_graphs/')
 htmlwidgets::saveWidget(plotly::as_widget(p), "./total.html",selfcontained = TRUE)
 p=plotly::ggplotly(ggplot(plot.data %>% filter(format(Date,'%Y')>2002,plot=='(B)'),aes(x=Date,color=Age.group,fill=Age.group))+
                      geom_line(aes(y=Prediction))+

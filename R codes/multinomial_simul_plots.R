@@ -133,8 +133,8 @@ ggsave(
 )
 
 #### Long versions ####
-width=2*base.size
-height=4*base.size
+width=base.size
+height=base.size
 
 ggplot(simul.data%>%
          arrange(desc(model))%>%

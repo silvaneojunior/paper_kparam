@@ -27,10 +27,10 @@ data_sqrd=data_ori**2
 # The variance is chosen in such a way that the upper bound for the 95% credibility interval is 1.
 # The prior for the AR coefficient is not too important, but one should be careful to not choose prior that is too vague.
 # We recomend using a prior such that at least 95% of the mass in within the statiory region of the AR(1), i.e., P(-1<phi<1)>=0.95
-m0=0.8
-C0=((1-m0)*0.5)**2
-# m0=0.95
-# C0=0
+# m0=0.8
+# C0=((1-m0)*0.5)**2
+m0=0.95
+C0=0
 
 level=polynomial_block(mu=1,R1=1)
 volat=TF_block(tau=1,order=1,
@@ -128,7 +128,7 @@ sum(log.like.gamma)
 
 ###########################################################
 
-pdf(file = 'Figures/normal_gamma_real_data.pdf',
+pdf(file = 'Figures/normal_gamma_simul_2.pdf',
     width = base.size/dpi, height = base.size/(dpi*2.5),
     family=family_font)
 
